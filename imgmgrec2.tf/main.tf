@@ -38,20 +38,25 @@ resource "aws_iam_instance_profile" "EC2_Profile" {
 resource "aws_iam_role" "ec2role" {
   name = "${terraform.workspace}-EC2-Instance-Role"
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"]
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "ec2.amazonaws.com"
+  inline_policy {
+    name = "ec2s3accesspolicy"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:DeleteObject"
+          ],
+          Effect = "Allow",
+          Resource = [
+            "${aws_s3_bucket.imgmgrs3bucket}"
+          ]
         }
-      },
-    ]
-  })
-
+      ]
+    })
+  }
   tags = {
     tag-key = "tag-value"
   }
@@ -85,4 +90,10 @@ resource "aws_security_group" "allow_ssh" {
   tags = {
     Name = "Allow_SSH"
   }
+}
+
+#S3 Bucket Creation
+resource "aws_s3_bucket" "imgmgrs3bucket" {
+  bucket = "${var.environment}_${var.namespace}_bucket_fmdidgad1"
+  acl    = "private"
 }

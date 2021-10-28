@@ -26,3 +26,7 @@ output "privatesubnetlist" {
     description = "A list of private subnets"
     value = join(", ", [aws_subnet.privatesubnet1.cidr_block, aws_subnet.privatesubnet2.cidr_block])
 }
+output "privateavailabilityzones" {
+    description = "List of private AZs"
+    value = join(", ", [aws_subnet.privatesubnet1.availability_zone, aws_subnet.privatesubnet2.availability_zone])
+}
